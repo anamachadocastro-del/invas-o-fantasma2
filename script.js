@@ -1,18 +1,71 @@
-const EV={log:"Logs: senha da Mariana usada de fora",troj:"Trojan no PC da Mariana",alex:"Alerta do Alex sobre e-mail",mail:"E-mail de phishing"};
-const KD={go:"Avançar",back:"Retornar",act:"Ação direta",path:"Escolha seu caminho"};
-const S={
-start:{ch:"Capítulo 1",t:"O aviso de incidente",sc:"srv",x:"02h00. O alerta chega ao seu celular: o banco de dados da startup TechShield foi invadido. Dados confidenciais vazaram e um ransomware bloqueou o acesso aos servidores.\n\nVocê é a investigadora ou o investigador da Unidade de Crimes Digitais. Cada minuto conta. Como começar?",c:[["path","Caminho 1: Investigação técnica, com análise de logs e servidores","c1a"],["path","Caminho 2: Investigação humana, com interrogatórios e pessoas","c2a"]]},
-c1a:{ch:"Caminho 1 · Fase 1",t:"Análise de rede",sc:"net",ev:"log",x:"Você abre os registros do servidor e vê acessos com as credenciais administrativas da funcionária Mariana, vindos de um IP remoto que ninguém reconhece. O que fazer?",c:[["go","Rastrear os pacotes de dados do IP e procurar a porta de entrada","c1b"],["back","Mudar de abordagem e interrogar a equipe presencialmente","c2a"],["act","Bloquear o IP remoto agora e revogar o acesso da Mariana","e_blq"]]},
-c1b:{ch:"Caminho 1 · Fase 2",t:"Encontrando o trojan",sc:"troj",ev:"troj",x:"Seguindo a rede, você encontra um arquivo malicioso (trojan) instalado no computador da Mariana. Ele envia credenciais para um servidor externo chamado Ciber_Shadow. Como prosseguir?",c:[["go","Descompilar o malware para achar a chave de descriptografia e a localização do servidor","win"],["back","Voltar à análise geral de logs para ver se outros servidores foram afetados","c1a"],["act","Invadir de volta o Ciber_Shadow sem mascarar seu IP","e_inv"]]},
-c2a:{ch:"Caminho 2 · Fase 1",t:"Interrogatório e suspeitos",sc:"ppl",ev:"alex",x:"Você conversa com a equipe. Alex, ex-desenvolvedor, diz que foi demitido injustamente e avisa sobre um e-mail suspeito de “Atualização de Sistema” que todos receberam. Mariana diz que só clicou no link da TI. O que fazer?",c:[["go","Analisar o e-mail que a Mariana recebeu e a caixa de entrada da equipe","c2b"],["back","Mudar para o caminho técnico e analisar os logs do servidor","c1a"],["act","Acusar o Alex agora e mandar prender o ex-funcionário","e_alx"]]},
-c2b:{ch:"Caminho 2 · Fase 2",t:"A armadilha de phishing",sc:"mail",ev:"mail",x:"Você confirma: Mariana foi vítima de engenharia social. O e-mail falso roubou as senhas dela. O remetente usou um domínio disfarçado que aponta para um servidor remoto.",c:[["go","Usar o cabeçalho do e-mail para rastrear a origem do ataque e isolar o vírus","win"],["back","Voltar e reinterrogar o Alex sobre o domínio falso","c2a"],["act","Responder ao golpista oferecendo dinheiro de recompensa","e_neg"]]},
-e_blq:{end:"bad",back:"c1a",ch:"Fim de jogo",t:"Bloqueio prematuro",sc:"bad",x:"Ao bloquear o IP sem rastrear a origem, o invasor percebeu a movimentação e ativou um comando de autodestruição. Os dados da empresa foram apagados para sempre.",l:"Antes de cortar o acesso, descubra por onde o invasor entrou. Bloquear cedo demais avisa o atacante."},
-e_inv:{end:"bad",back:"c1b",ch:"Fim de jogo",t:"Contra-ataque falho",sc:"bad",x:"Você tentou contra-atacar sem proteção. O cibercriminoso detectou a conexão, invadiu seu computador de investigação e vazou as informações.",l:"Revidar sem mascarar o IP expõe quem investiga. Primeiro proteja a si mesmo, depois rastreie."},
-e_alx:{end:"bad",back:"c2a",ch:"Fim de jogo",t:"Acusação sem provas",sc:"bad",x:"Você prendeu o Alex sem provas. Ele era inocente e só tentava alertar a empresa. O verdadeiro criminoso manteve o acesso total e concluiu o roubo dos dados.",l:"Ter motivo não é ter prova. Acusar sem evidência deixa o culpado livre."},
-e_neg:{end:"bad",back:"c2b",ch:"Fim de jogo",t:"Armadilha de negociação",sc:"bad",x:"O chantagista usou a conversa para ganhar tempo, extrair informações confidenciais do seu sistema e expor os dados na dark web mesmo assim.",l:"Nunca negocie nem responda a golpistas sem apoio da equipe de resposta a incidentes."},
-win:{end:"win",back:"start",ch:"Caso encerrado",t:"Caso resolvido!",sc:"win",x:"Você identificou a técnica de invasão, isolou o malware e recuperou a chave de descriptografia antes do vazamento final. O sistema foi restaurado e a segurança da TechShield saiu mais forte.",l:"Phishing e trojans atacam pessoas, não só máquinas. Rastrear a origem antes de agir foi o que resolveu o caso."},
-cred:{ch:"Créditos",t:"Quem fez este caso",sc:"gh",x:"Desenvolvimento e Criação:\n• Isabella Spelier\n• Ana Luiza\n\nFontes e Suporte Tecnológico:\n• Gemini (Inteligência Artificial)\n• Claude (Inteligência Artificial)\n• Alura\n• Google Classroom",c:[["go","Voltar ao início","start"]]}
-};
+const EV={log:"Logs com acesso remoto",mari:"Depoimento da Mariana",alex:"Alerta do Alex",mail:"E-mail de phishing",dom:"Domínio falso",troj:"Trojan no PC"};
+const Q=[
+["srv","O alerta das 02h00","O banco de dados da TechShield foi invadido e um ransomware bloqueou os servidores. Dados confidenciais vazaram. Qual é a sua primeira ação?",
+["Copiar os logs e fotografar a tela do ransomware","g","Boa! Preservar as provas antes de mexer em tudo é o primeiro passo."],
+["Reiniciar os servidores para ver se o bloqueio some","m","Reiniciar apaga dados temporários que seriam provas. Você perdeu pistas."],
+["Pagar o resgate para recuperar os dados logo","b","Pagar não garante nada e financia o crime. O caso segue, mas você perdeu tempo."]],
+["ppl","Quem avisar?","Antes de investigar, é preciso alinhar a empresa. Quem você aciona?",
+["A diretoria e a equipe de resposta a incidentes","g","Certo! Comunicação rápida e organizada evita decisões isoladas."],
+["Só o grupo de mensagens dos funcionários","m","Informação solta gera boatos e pode alertar o invasor."],
+["Publicar o ataque nas redes sociais da empresa","b","Isso atrai curiosos e alerta o criminoso. O caso segue, mas a situação piorou."]],
+["net","Os registros do servidor","Os logs mostram acessos com as credenciais administrativas da Mariana, vindos de um IP remoto desconhecido. O que você faz?",
+["Anotar horários e IP e cruzar com o firewall","g","Excelente. Dados cruzados viram prova sólida.","log"],
+["Apagar logs antigos para organizar o sistema","m","Logs antigos são prova. Você jogou pistas fora."],
+["Concluir que a Mariana é a culpada","b","Credencial usada não significa que ela agiu. O caso segue, mas você errou o foco."]],
+["ppl","Conversa com a Mariana","Mariana está nervosa e diz que só clicou num link enviado pela TI. Como conduzir a conversa?",
+["Ouvir com calma e pedir que descreva o que clicou","g","Ótimo. Um depoimento tranquilo revela detalhes úteis.","mari"],
+["Pressionar até ela confessar","m","Pressão gera respostas confusas e pouco confiáveis."],
+["Afastá-la do cargo na hora","b","Punir antes de provar atrapalha a colaboração. O caso segue, com menos ajuda."]],
+["ppl","O alerta do Alex","Alex, ex-desenvolvedor demitido, diz que foi injustiçado e avisa sobre um e-mail suspeito de “Atualização de Sistema” que todos receberam.",
+["Ouvir o Alex e pedir uma cópia do e-mail","g","Boa! Mesmo quem tem mágoa pode ter informação valiosa.","alex"],
+["Ignorar, por ele ser ex-funcionário","m","Ignorar uma testemunha pode custar uma pista importante."],
+["Acusar o Alex e chamar a polícia","b","Sem provas, acusar é injusto e desvia o foco. O caso segue, mas você perdeu muito."]],
+["mail","Analisando o e-mail","O e-mail falso parece vir da TI, mas o endereço tem uma letra trocada. Como analisá-lo com segurança?",
+["Ler o cabeçalho completo em um ambiente isolado","g","Perfeito. O cabeçalho mostra por onde a mensagem passou.","mail"],
+["Só ler o texto e comparar com e-mails verdadeiros","m","Ajuda um pouco, mas sem o cabeçalho a origem fica oculta."],
+["Clicar no link para ver onde ele leva","b","O link instalou malware também no seu computador de investigação. Fim de jogo."]],
+["mail","O domínio disfarçado","O remetente usou um domínio parecido com o da empresa, registrado há poucos dias. O que fazer?",
+["Consultar o registro do domínio e anotar data e provedor","g","Ótimo. Domínio novo e disfarçado é sinal clássico de phishing.","dom"],
+["Pedir só o bloqueio do domínio","m","Bloquear ajuda, mas sem registrar os dados você perde rastros."],
+["Responder ao golpista oferecendo dinheiro","b","O chantagista ganhou tempo, extraiu informações do seu sistema e expôs os dados na dark web. Fim de jogo."]],
+["net","Rastreando o IP","Com o IP remoto em mãos, falta descobrir a porta de entrada do ataque. Qual o próximo passo?",
+["Rastrear os pacotes de dados até a origem","g","Certo. Rastrear antes de agir revela como o invasor entrou."],
+["Observar sem registrar nada","m","Sem registro, nada vira prova. Você perdeu tempo."],
+["Bloquear o IP imediatamente","b","O invasor percebeu, ativou a autodestruição e os dados foram apagados para sempre. Fim de jogo."]],
+["troj","O trojan","No computador da Mariana há um arquivo malicioso (trojan) que envia credenciais para um servidor externo chamado Ciber_Shadow. O que fazer?",
+["Isolar o PC da rede, sem desligar, e copiar a memória","g","Excelente. Isolar preserva as provas e corta a comunicação.","troj"],
+["Apagar o arquivo e seguir em frente","m","Remover sem copiar destrói a prova principal."],
+["Formatar o computador agora","b","Formatar apagou as provas e o invasor manteve outros acessos. Fim de jogo."]],
+["net","As senhas","Mariana usa a mesma senha em vários sistemas da empresa. Como reduzir o risco?",
+["Trocar todas as senhas e ativar verificação em duas etapas","g","Ótimo. A verificação em duas etapas barra senhas roubadas."],
+["Pedir que ela troque só a senha do e-mail","m","Ajuda, mas as outras contas seguem expostas."],
+["Manter as senhas até o fim do caso","b","O invasor usou as senhas antigas e entrou de novo. Fim de jogo."]],
+["srv","Os backups","O ransomware travou os servidores. Existem backups, mas ninguém sabe se estão limpos. O que fazer?",
+["Verificar os backups offline e checar os outros servidores","g","Certo. Backup limpo e isolado é a melhor defesa."],
+["Restaurar o backup direto no servidor atingido","m","Pode funcionar, mas sem checar você corre o risco de reinfectar."],
+["Ligar o disco de backup ao servidor infectado","b","O ransomware criptografou também o backup. Fim de jogo."]],
+["gh","O rastro do Ciber_Shadow","O servidor externo Ciber_Shadow recebe as senhas roubadas. Como agir?",
+["Reunir os indicadores do ataque e acionar as autoridades","g","Perfeito. Uma investigação formal tem validade e proteção legal."],
+["Tentar derrubar o servidor por conta própria","m","É arriscado e fora da lei. Você perdeu tempo."],
+["Invadir de volta sem mascarar seu IP","b","O criminoso detectou a conexão, invadiu seu computador de investigação e vazou as informações. Fim de jogo."]],
+["troj","Dentro do malware","Para achar a chave de descriptografia, é preciso analisar o código do malware. Como fazer?",
+["Descompilar em um ambiente isolado (sandbox)","g","Ótimo. Analisar isolado protege o seu sistema."],
+["Rodar só o antivírus e esperar","m","O antivírus bloqueia, mas não revela a chave."],
+["Executar o malware no seu computador","b","O malware infectou a sua máquina e travou a investigação. Fim de jogo."]],
+["srv","A chave","Você encontrou a chave de descriptografia. Como usá-la sem risco?",
+["Testar primeiro numa cópia dos dados","g","Certo. Testar em cópia evita perder tudo."],
+["Aplicar em todos os servidores de uma vez","m","Pode dar certo, mas sem teste o risco é alto."],
+["Aplicar direto no banco original, sem cópia","b","A chave falhou e corrompeu o banco original. Fim de jogo."]],
+["ppl","O relatório","Hora de entregar o relatório à diretoria. Como escrevê-lo?",
+["Linha do tempo, provas e a conclusão de que a Mariana foi vítima","g","Excelente. Um relatório claro protege inocentes e orienta decisões."],
+["Só um resumo curto com a conclusão","m","Sem as provas, o relatório perde força."],
+["Culpar a Mariana pelo ataque","b","A diretoria demitiu a vítima e o verdadeiro criminoso seguiu livre. Fim de jogo."]],
+["gh","Nunca mais","Com o caso resolvido, como a TechShield evita um novo ataque?",
+["Treinamento contra phishing, verificação em duas etapas e backups offline","g","Perfeito. Pessoas treinadas são a primeira barreira."],
+["Só instalar um antivírus novo","m","Ajuda, mas não resolve o fator humano."],
+["Não mudar nada, o caso está encerrado","b","Semanas depois, o mesmo golpe funcionou de novo. Fim de jogo."]]
+];
+const N=Q.length;
 const sw=(c,w)=>`<g fill="none" stroke="${c}" stroke-width="${w||2}">`;
 const G=(x,y,s,c)=>`<g transform="translate(${x} ${y}) scale(${s})" class="float"><use href="#gh"/></g>`;
 const P=(x,y,n,col)=>`<circle cx="${x}" cy="${y}" r="26" fill="${col}"/><circle cx="${x}" cy="${y-6}" r="8" fill="#fff" opacity=".85"/><path d="M${x-14} ${y+20}a14 12 0 0 1 28 0z" fill="#fff" opacity=".85"/><text x="${x}" y="${y+46}" text-anchor="middle" font-size="13" fill="var(--ink)">${n}</text>`;
@@ -26,31 +79,30 @@ bad:()=>`<svg viewBox="0 0 400 170"><rect x="120" y="25" width="160" height="110
 win:()=>`<svg viewBox="0 0 400 170"><path d="M200 20l60 20v45c0 30-25 50-60 65-35-15-60-35-60-65V40z" fill="var(--ok)"/>${sw('#fff',9)}<path d="M172 82l20 20 38-40" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
 gh:()=>`<svg viewBox="0 0 400 170">${G(200,85,3.2)}</svg>`};
 const $=id=>document.getElementById(id);
-let ev=new Set(),found=new Set(),sound=true,ac,timer,cur;
-try{found=new Set(JSON.parse(localStorage.getItem('enigma-finais')||'[]'))}catch(e){}
 function tone(f,d,t,v,at){if(!sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),s=ac.currentTime+(at||0);o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v||.07,s);g.gain.exponentialRampToValueAtTime(.001,s+d);o.connect(g);g.connect(ac.destination);o.start(s);o.stop(s+d)}catch(e){}}
 const sfx={click:()=>tone(520,.08,'triangle'),ev:()=>{tone(660,.12,'square',.04);tone(990,.18,'square',.04,.1)},win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.08,i*.12)),bad:()=>[330,262,196,147].forEach((f,i)=>tone(f,.35,'sawtooth',.05,i*.16))};
-function hud(){$('hud').innerHTML=Object.keys(EV).map(k=>`<span class="tag ${ev.has(k)?'':'no'}">${ev.has(k)?EV[k]:'Evidência não encontrada'}</span>`).join('')+`<span class="cnt">Finais: ${found.size}/5</span>`}
-function go(k){
-  clearInterval(timer);const n=S[k];cur=k;
-  if(k==='start')ev.clear();
-  if(n.ev&&!ev.has(n.ev)){ev.add(n.ev);sfx.ev()}
-  if(n.end){found.add(k);try{localStorage.setItem('enigma-finais',JSON.stringify([...found]))}catch(e){}n.end==='win'?sfx.win():sfx.bad()}else sfx.click();
-  $('sc').innerHTML=ART[n.sc]();$('chp').textContent=n.ch;
-  const h=$('tt');h.textContent=n.t;h.className=n.end||'';
-  $('ls').innerHTML=n.l?'':'';$('ch').innerHTML='';hud();
-  let c=n.c;
-  if(n.end==='bad')c=[['go','Voltar à decisão anterior',n.back,'back'],['go','Recomeçar o caso','start'],['go','Ver créditos','cred']];
-  if(n.end==='win')c=[['go','Jogar de novo e descobrir outros finais','start'],['go','Ver créditos','cred']];
-  const tx=$('tx'),full=n.x,box=$('ch');
-  const done=()=>{clearInterval(timer);tx.textContent=full;if(n.l)$('ls').innerHTML=`<div class="lesson"><b>Lição de segurança:</b> ${n.l}</div>`;
-    box.innerHTML=c.map((o,i)=>`<button class="opt ${o[3]||o[0]}${i===0&&n.end?' main':''}" data-k="${o[2]}" style="animation-delay:${i*.08}s"><small>${i+1}. ${o[3]?KD[o[3]]:(KD[o[0]]||'')}</small>${o[1]}</button>`).join('');
-    box.querySelectorAll('button').forEach(b=>b.onclick=()=>go(b.dataset.k));box.firstChild&&box.firstChild.focus({preventScroll:true})};
-  tx.onclick=done;tx.textContent='';let i=0;
-  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return done();
-  timer=setInterval(()=>{i+=2;tx.textContent=full.slice(0,i);if(i%6===0)tone(900+Math.random()*200,.02,'square',.012);if(i>=full.length)done()},16);
-  scrollTo({top:0,behavior:'smooth'});
-}
+let ev=new Set(),pts=100,i=0,prev=100,sound=true,ac,timer,best=0;
+try{best=+localStorage.getItem('enigma-melhor')||0}catch(e){}
+function hud(){$('hud').innerHTML=Object.keys(EV).map(k=>`<span class="tag ${ev.has(k)?'':'no'}">${ev.has(k)?EV[k]:'Pista não encontrada'}</span>`).join('')+`<span class="cnt">Integridade do caso: ${Math.max(pts,0)}%</span>`}
+function type(txt,after){clearInterval(timer);const tx=$('tx');let k=0;const fin=()=>{clearInterval(timer);tx.textContent=txt;after()};tx.onclick=fin;tx.textContent='';if(matchMedia('(prefers-reduced-motion:reduce)').matches)return fin();timer=setInterval(()=>{k+=2;tx.textContent=txt.slice(0,k);if(k%6===0)tone(900+Math.random()*200,.02,'square',.012);if(k>=txt.length)fin()},16)}
+function show(o){
+  clearInterval(timer);$('sc').innerHTML=ART[o.sc]();$('chp').textContent=o.ch;const h=$('tt');h.textContent=o.t;h.className=o.cls||'';$('ch').innerHTML='';hud();
+  type(o.x,()=>{const box=$('ch');box.innerHTML=o.b.map((b,n)=>`<button class="opt${b[2]?' main':''}" style="animation-delay:${n*.08}s"><small>${n+1}</small>${b[0]}</button>`).join('');box.querySelectorAll('button').forEach((el,n)=>el.onclick=o.b[n][1]);box.firstChild&&box.firstChild.focus({preventScroll:true})});
+  scrollTo({top:0,behavior:'smooth'})}
+function intro(){i=0;pts=100;prev=100;ev.clear();sfx.click();show({sc:'srv',ch:'Caso TechShield · 02h00',t:'O Enigma do Servidor Fantasma',x:'Você é a investigadora ou o investigador da Unidade de Crimes Digitais. A startup TechShield sofreu um ataque e cada decisão sua pode salvar ou perder o caso.\n\nSão '+N+' perguntas. As 5 primeiras são de treino: erros custam pontos, mas não encerram o jogo.',b:[['Iniciar investigação',ask,1],['Ver créditos',cred]]})}
+function ask(){const q=Q[i];prev=pts;const o=q.slice(3).sort(()=>Math.random()-.5);show({sc:q[0],ch:'Pergunta '+(i+1)+' de '+N+(i<5?' · treino':''),t:q[1],x:q[2],b:o.map(a=>[a[0],()=>pick(a)])})}
+function pick(a){const q=Q[i],t=a[1];
+  if(t==='b'&&i>=5)return over(a[2]);
+  if(a[3]&&!ev.has(a[3])){ev.add(a[3]);sfx.ev()}else sfx.click();
+  pts-=t==='m'?8:t==='b'?15:0;
+  if(pts<=0)return over('As decisões fracas se acumularam e a diretoria encerrou o caso por falta de provas. Fim de jogo.');
+  const last=i===N-1;
+  show({sc:q[0],ch:'Pergunta '+(i+1)+' de '+N,t:t==='g'?'Boa decisão':t==='m'?'Decisão arriscada':'Decisão ruim',x:a[2],b:[[last?'Ver resultado':'Próxima pergunta',()=>{i++;last?win():ask()},1]]})}
+function over(x){sfx.bad();show({sc:'bad',ch:'Fim de jogo',t:'Fim de jogo',cls:'bad',x:x,b:[['Tentar esta pergunta de novo',()=>{pts=prev;ask()},1],['Recomeçar o caso',intro],['Ver créditos',cred]]})}
+function win(){sfx.win();const p=Math.max(pts,0);if(p>best){best=p;try{localStorage.setItem('enigma-melhor',best)}catch(e){}}
+  const r=p>=85?'Investigação lendária':p>=60?'Especialista em segurança':'Caso resolvido por um fio';
+  show({sc:'win',ch:'Caso encerrado',t:'Caso resolvido!',cls:'win',x:'Você isolou o malware, recuperou os dados e protegeu a TechShield.\n\nIntegridade final: '+p+'%\nTítulo: '+r+'\nMelhor marca: '+best+'%',b:[['Jogar de novo',intro,1],['Ver créditos',cred]]})}
+function cred(){show({sc:'gh',ch:'Créditos',t:'Quem fez este caso',x:'Desenvolvimento e Criação:\n• Isabella Spelier\n• Ana Luiza\n\nFontes e Suporte Tecnológico:\n• Gemini (Inteligência Artificial)\n• Claude (Inteligência Artificial)\n• Alura\n• Google Classroom',b:[['Voltar ao início',intro,1]]})}
 addEventListener('keydown',e=>{const b=document.querySelectorAll('#ch .opt')[+e.key-1];if(b)b.click();else if(e.key==='Enter'&&!document.querySelector('#ch .opt'))$('tx').click()});
 $('snd').onclick=e=>{sound=!sound;e.target.textContent='Som: '+(sound?'ligado':'desligado');e.target.setAttribute('aria-pressed',sound)};
-go('start');
+intro();
